@@ -1,0 +1,4 @@
+plot "red.dat" with lines
+replot "green.dat" with lines
+replot "blue.dat" with lines
+pause -1

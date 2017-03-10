@@ -1,0 +1,2 @@
+plot "repart.dat" with lines;
+pause -1
