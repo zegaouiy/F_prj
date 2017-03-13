@@ -8,8 +8,11 @@ void next_img(OCTET* img, char nom[250], int id, char suf[250], int n);
 
 void update(int* mean, OCTET* img, int n);
 
+void median(int* med, OCTET* img, int n, int m);
+
 void mean_ref(OCTET* img, char nom[250], int id, char suf[250], int h, int w, int nbimg);
 
+void do_med(OCTET* img, char nom[250], int id, char suf[250], int h, int w, int nbimg);
 //********************************************************************************
 
 void next_img(OCTET* img, char nom[250], int id, char suf[250], int n)
@@ -51,6 +54,54 @@ void mean_ref(OCTET* img, char nom[250], int id, char suf[250], int h, int w, in
   ecrire_image_ppm("reference_mean.ppm", out, h, w);
 }
 
+void median(int* med, OCTET* img, int n, int m)
+{
+  int i, j, b;
+  
+  for(i = 0; i < n; i++)
+    {
+      j = 0;
+      b = (med[i * m + j] == -1) || (img[i] < med[i * m]);
+      while(j < m && !b)
+      {
+	j++;
+	b = (img[i] < med[i * m + j]) || (med[i * m + j] == -1);
+	//cout << "img i = " << (int)img[i] << "   med i = " << med[i * m + j] << "  b = " << b << endl;
+      }
+      for(b = m - 1; b > j; b--)
+	med[i * m + b] = med[i * m + b - 1];
+      med[i * m + j] = img[i];
+      
+    }
+}
+
+void do_med(OCTET* img, char nom[250], int id, char suf[250], int h, int w, int nbimg)
+{
+  int i, *mean, *med, n = h*w;
+  OCTET* out;
+
+  allocation_tableau(med, int, 3 * n * nbimg);  
+  allocation_tableau(out, OCTET, 3 * n);
+  allocation_tableau(mean, int, 3 * n);
+
+  for(i = 0; i < 3 * n * nbimg; i++)
+    med[i] = -1;
+  
+  for(i = 1; i < nbimg; i++)
+    {
+      median(med, img, 3 * n, nbimg);
+      next_img(img, nom, id + i, suf, n);
+    }
+  
+  for(i = 0; i < 3 * n; i++)
+    {
+      out[i] = med[i * nbimg + nbimg/2];
+    }
+
+  ecrire_image_ppm("reference_med.ppm", out, h, w);
+}
+  
+  
 int main(int argc, char* argv[])
 {
   char nomImg[250], nomMask[250], suf[250], fimg[250];;
@@ -80,7 +131,7 @@ int main(int argc, char* argv[])
   allocation_tableau(mask, OCTET, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
-  mean_ref(ImgIn, nomImg, ind, suf, nH, nW, nbimg);
+  do_med(ImgIn, nomImg, ind, suf, nH, nW, nbimg);
 
   return 1;
 }

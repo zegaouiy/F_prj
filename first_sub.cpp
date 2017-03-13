@@ -8,9 +8,9 @@ using namespace std;
 
 void histo(int* h, OCTET* img, OCTET* mask, int n);
 
-void repart(OCTET* img, OCTET* mask, int* hist, float* ddp, int n);
+void repart(OCTET* img, OCTET* mask, int* hist, double* ddp, int n);
 
-void egalise(OCTET* img, OCTET* mask, int* hist, float* ddp, int n);
+void egalise(OCTET* img, OCTET* mask, int* hist, double* ddp, int n);
 
 void spec(OCTET* img, OCTET* ref, OCTET* mask, int n);
 
@@ -24,7 +24,7 @@ void thresh(OCTET* img, OCTET* ref, int* dif, OCTET s, int n);
 
 void bs(OCTET* img, OCTET* ref, OCTET* mask, int n);
 
-float abs(float a)
+double abs(double a)
 {
   if (a < 0)
     a *= -1;
@@ -67,7 +67,7 @@ void diff(OCTET* img, OCTET* ref, int* dif, int n)
 void thresh(OCTET* img, int* dif, OCTET s, int n)
 {
   int i;
-  float r, g, b;
+  double r, g, b;
 
   for(i = 0; i < n;i++)
     {
@@ -84,14 +84,14 @@ void thresh(OCTET* img, int* dif, OCTET s, int n)
     }
 }
 
-void repart(OCTET* img, OCTET* mask, int* hist, float* ddp, int n)
+void repart(OCTET* img, OCTET* mask, int* hist, double* ddp, int n)
 {
   int i;
-  float sum = 0;
+  double sum = 0;
 
   for(i = 0; i < 256; i++)
     {
-      ddp[i] = (float)hist[i]/(float)n;
+      ddp[i] = (double)hist[i]/(double)n;
       
     }
   for(i = 0; i < 256; i++)
@@ -102,23 +102,23 @@ void repart(OCTET* img, OCTET* mask, int* hist, float* ddp, int n)
     }  
 }
       
-void egalise(OCTET* img, OCTET* mask, int* hist, float* ddp, int n)
+void egalise(OCTET* img, OCTET* mask, int* hist, double* ddp, int n)
 {
   int i;
   
   for(i = 0; i < n; i++)
     {
       img[i] = (OCTET)(ddp[img[i]] * 255.0);
-     
+      
     }
 }
 
 void spec(OCTET* img, OCTET* ref, OCTET* mask, int n)
 {
-  int i, h[256], href[256], true_n = n;
-  float ddp[256], d_ref[256];
-  OCTET k;
-
+  int i, k, h[256], href[256], true_n = n;
+  double ddp[256], d_ref[256];
+  OCTET val;
+  
   for(i = 0; i < n; i++)
     {
       if(!mask[i])
@@ -128,21 +128,21 @@ void spec(OCTET* img, OCTET* ref, OCTET* mask, int n)
   histo(h, img, mask, n);
   repart(img, mask, h, ddp, true_n);
   histo(href, ref, mask, n);
-  repart(ref, mask, h, d_ref, true_n);
+  repart(ref, mask, href, d_ref, true_n);
+ 
   egalise(img, mask, h, ddp, n);
   
   for(i = 0; i < n; i++)
     {
-      k = 255;
-     
-      while(k > 0 && 255*d_ref[k] > img[i])
+      for(k = 0; k < 256; k++)
 	{
-	  k--;
-	  
+	  if((OCTET)(255.0 * d_ref[k] < img[i]))
+	    val = (OCTET)k;
+	  //cout << "i = " << i << "  k = " << k << "  im = " << (int)img[i] << endl;
 	}
-      img[i] = k;
+      img[i] = val;
     }
-  
+
 }
 
 void spec_rgb(OCTET* img, OCTET* ref, OCTET* mask, int n)
@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
   allocation_tableau(ImgIn, OCTET, 3 * nTaille);
 
   lire_image_ppm(nomImg, ImgIn, nTaille);
-  lire_image_ppm("lena.ppm", ref, nTaille);
+  lire_image_ppm("../dat/lena.ppm", ref, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
   bs(ImgIn, ref, mask, nTaille, s);
