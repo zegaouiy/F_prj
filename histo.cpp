@@ -26,7 +26,7 @@ void print_histo(OCTET* img, OCTET* mask, int n)
       r = img[3 * i];
       g = img[3 * i + 1];
       b = img[3 * i + 2];
-      nb[i] = 0.3 * r + 0.6 * g + 0.1 * b;
+      nb[i] = (OCTET)(0.3 * r + 0.6 * g + 0.1 * b);
     }
 
   histo(h, nb, mask, n);
@@ -78,7 +78,7 @@ void histo(int* h, OCTET* img, OCTET* mask, int n)
 {
   int i;
   
-  for(i = 0; i < 255; i++)
+  for(i = 0; i < 256; i++)
     h[i] = 0;
 
   for(i = 0; i < n; i++)

@@ -18,13 +18,20 @@ void spec_rgb(OCTET* img, OCTET* ref, OCTET* mask, int n);
 
 void app_mask(OCTET* img, OCTET* mask, int n);
 
-void diff(OCTET* img, int* dif, int n);
+void diff(OCTET* img, OCTET* ref, int n);
 
-void thresh(OCTET* img, OCTET* ref, int* dif, OCTET s, int n);
+void thresh(OCTET* img, OCTET s, int n);
 
 void bs(OCTET* img, OCTET* ref, OCTET* mask, int n);
 
 double abs(double a)
+{
+  if (a < 0)
+    a *= -1;
+  return a;
+}
+
+int abs(int a)
 {
   if (a < 0)
     a *= -1;
@@ -46,7 +53,7 @@ void histo(int* h, OCTET* img, OCTET* mask, int n)
 {
   int i;
   
-  for(i = 0; i < 255; i++)
+  for(i = 0; i < 256; i++)
     h[i] = 0;
 
   for(i = 0; i < n; i++)
@@ -56,24 +63,27 @@ void histo(int* h, OCTET* img, OCTET* mask, int n)
     }
 }
 
-void diff(OCTET* img, OCTET* ref, int* dif, int n)
+void diff(OCTET* img, OCTET* ref, int n)
 {
-  int i;
+  int i, dif;
 
   for(i = 0; i < n; i++)
-    dif[i] = (int)ref[i] - (int)img[i];
+    {
+      dif = (int)ref[i] - (int)img[i];
+      img[i] = (OCTET)abs(dif);
+    }
 }
 
-void thresh(OCTET* img, int* dif, OCTET s, int n)
+void thresh(OCTET* img, OCTET s, int n)
 {
   int i;
   double r, g, b;
 
   for(i = 0; i < n;i++)
     {
-      r = abs(dif[3 * i]);
-      g = abs(dif[3 * i + 1]);
-      b = abs(dif[3 * i + 2]);
+      r = img[3 * i];
+      g = img[3 * i + 1];
+      b = img[3 * i + 2];
       
       if(r < s || b < s || g < s)
 	for(int j = 0; j < 3; j++)
@@ -134,6 +144,7 @@ void spec(OCTET* img, OCTET* ref, OCTET* mask, int n)
   
   for(i = 0; i < n; i++)
     {
+      val = 0;
       for(k = 0; k < 256; k++)
 	{
 	  if((OCTET)(255.0 * d_ref[k] < img[i]))
@@ -142,7 +153,7 @@ void spec(OCTET* img, OCTET* ref, OCTET* mask, int n)
 	}
       img[i] = val;
     }
-
+  
 }
 
 void spec_rgb(OCTET* img, OCTET* ref, OCTET* mask, int n)
@@ -183,12 +194,15 @@ void bs(OCTET* img, OCTET* ref, OCTET* mask, int n, OCTET s)
 {
   int* dif;
   
-  allocation_tableau(dif, int, 3 * n);
+  // allocation_tableau(dif, int, 3 * n);
   
   spec_rgb(img, ref, mask, n);
-  //diff(img, ref, dif, 3*n);
-  //thresh(img, s, n);
-  //app_mask(img, mask, n);
+  // cout << "spec done " << endl;
+  // diff(img, ref, 3*n);
+  // cout << "diff done" << endl;
+  // thresh(img, s, n);
+  // cout << "seuil done" << endl;
+  // app_mask(img, mask, n);
 
 }
 
@@ -216,7 +230,7 @@ int main(int argc, char* argv[])
   allocation_tableau(ImgIn, OCTET, 3 * nTaille);
 
   lire_image_ppm(nomImg, ImgIn, nTaille);
-  lire_image_ppm("../dat/lena.ppm", ref, nTaille);
+  lire_image_ppm("../../F_prj/dat/reference_mean.ppm", ref, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
   bs(ImgIn, ref, mask, nTaille, s);
