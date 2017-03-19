@@ -20,13 +20,15 @@ void print_histo(OCTET* img, OCTET* mask, int n)
   float r, g, b;
   
   allocation_tableau(nb, OCTET, n);
-
+  
   for(i = 0; i < n; i++)
     {
       r = img[3 * i];
       g = img[3 * i + 1];
       b = img[3 * i + 2];
       nb[i] = 0.3 * r + 0.6 * g + 0.1 * b;
+      if(nb[i] > 250)
+	cout << " nb = " << (int)nb[i] << "  r = " << r << "  g  = " << g << "  b = " << b << endl;
     }
 
   histo(h, nb, mask, n);
@@ -85,6 +87,8 @@ void histo(int* h, OCTET* img, OCTET* mask, int n)
     {
       if(mask[i] == 255)
 	h[img[i]]++;
+      if(img[i] == 255)
+	cout << "h = " << img[i] << endl;
     }
 }
 
@@ -112,10 +116,12 @@ int main(int argc, char* argv[])
   allocation_tableau(mask, OCTET, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
-  if(coul)
+  if(coul == 1)
     print_histo_coul(ImgIn, mask, nTaille);
   else
-    print_histo(ImgIn, mask, nTaille);
-     
+    {
+      cout << " nb " << endl;
+      print_histo(ImgIn, mask, nTaille);
+    }
   return 1;
 }
