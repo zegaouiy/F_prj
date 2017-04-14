@@ -142,39 +142,41 @@ void order_dif(OCTET* img, OCTET* mask, OCTET* ref, int win, int nH, int nW)
   allocation_tableau(res, OCTET, n);
   allocation_tableau(tmp, OCTET, n);
   
-  //order1
-  erosion(img, res, mask, win, nH, nW);
-  dilat(res, tmp, mask, win, nH, nW);
-  diff(tmp, ref, n);
-  median(tmp, res, mask, win, nH, nW);
-  
-  ecrire_image_pgm("order1.pgm", res, nH, nW);
+  median(ref, res, mask, win, nH, nW);
 
-  //order2
-  median(img, res, mask, win, nH, nW);
-  diff(res, ref, n);
-  erosion(res, tmp, mask, win, nH, nW);
-  dilat(tmp, res, mask, win, nH, nW);
+  // //order1
+  // erosion(img, res, mask, win, nH, nW);
+  // dilat(res, tmp, mask, win, nH, nW);
+  // diff(tmp, ref, n);
+  // median(tmp, res, mask, win, nH, nW);
+  
+  // ecrire_image_pgm("order1.pgm", res, nH, nW);
+
+  // //order2
+  // median(img, res, mask, win, nH, nW);
+  // diff(res, ref, n);
+  // erosion(res, tmp, mask, win, nH, nW);
+  // dilat(tmp, res, mask, win, nH, nW);
 		      
-  ecrire_image_pgm("order2.pgm", res, nH, nW);
+  // ecrire_image_pgm("order2.pgm", res, nH, nW);
 
-  //order3
-  erosion(img, res, mask, 0, nH, nW);
-  diff(res, ref, n);
-  median(res, tmp, mask, win, nH, nW);
-  erosion(tmp, res, mask, win, nH, nW);
-  dilat(res, tmp, mask, win, nH, nW);
+  // //order3
+  // erosion(img, res, mask, 0, nH, nW);
+  // diff(res, ref, n);
+  // median(res, tmp, mask, win, nH, nW);
+  // erosion(tmp, res, mask, win, nH, nW);
+  // dilat(res, tmp, mask, win, nH, nW);
   
-  ecrire_image_pgm("order3.pgm", tmp, nH, nW);
+  // ecrire_image_pgm("order3.pgm", tmp, nH, nW);
 
-  //order4
-  median(img, res, mask, win, nH, nW);
-  erosion(res, tmp, mask, win, nH, nW);
-  dilat(tmp, res, mask, win, nH, nW);
-  diff(res, ref, n);
+  // //order4
+  // median(img, res, mask, win, nH, nW);
+  // erosion(res, tmp, mask, win, nH, nW);
+  // dilat(tmp, res, mask, win, nH, nW);
+  // diff(res, ref, n);
  
-  ecrire_image_pgm("order4.pgm", res, nH, nW);
-  //ecrire_image_pgm("ref.pgm", ref, nH, nW);
+  // ecrire_image_pgm("order4.pgm", res, nH, nW);
+  ecrire_image_pgm("ref.pgm", res, nH, nW);
 }
 
 
