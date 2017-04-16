@@ -141,8 +141,10 @@ void order_dif(OCTET* img, OCTET* mask, OCTET* ref, int win, int nH, int nW)
 
   allocation_tableau(res, OCTET, n);
   allocation_tableau(tmp, OCTET, n);
+
+  //median(ref, res, mask, win, nH, nW);
   
-  //order1
+  // order1
   erosion(img, res, mask, win, nH, nW);
   dilat(res, tmp, mask, win, nH, nW);
   diff(tmp, ref, n);
@@ -174,7 +176,7 @@ void order_dif(OCTET* img, OCTET* mask, OCTET* ref, int win, int nH, int nW)
   diff(res, ref, n);
  
   ecrire_image_pgm("order4.pgm", res, nH, nW);
-  //ecrire_image_pgm("ref.pgm", ref, nH, nW);
+  //ecrire_image_pgm("ref_med.pgm", res, nH, nW);
 }
 
 
