@@ -16,6 +16,32 @@ void region(OCTET* img, int size_max, int size_min, int h, int w, OCTET s);
 
 //**************************************************************************
 
+void maxi(int* img, int n, int &m)
+{
+  int i;
+  m = 0;
+    
+  for(i = 0; i < n; i++)
+    if(img[i] > m)
+      m = img[i];
+}
+
+
+void write_label(int* map, int h, int w)
+{
+  int i, max, n = h * w;
+  OCTET* out;
+  
+  allocation_tableau(out, OCTET, n);
+  
+  maxi(map, n, max);
+
+  for(i = 0; i < n; i++)
+    out[i] = (OCTET)((float)map[i]/(float)max * 255.0);
+  
+  ecrire_image_pgm("label.pgm", out, h, w);
+}
+  
 
 void thresh(OCTET* img, OCTET s, int n)
 {
@@ -150,26 +176,26 @@ void region(OCTET* img, int size_max, int size_min, int h, int w, OCTET s)
 	  //for each label in map
 	  if(map[i] == val)
 	    {
-	      //update result 
+	      //check label size 
 	      if(tsizes[tmap[i] - 1] >= size_max)
 		{
-		  cout << " up max taille " << endl;
-		  if(sizes[val - 1] < size_max)
+		  //cout << "sup max" << endl;
+		  if(sizes[val - 1] < size_max && sizes[val - 1] > size_min)
 		    {
+		      //update result
 		      cout << "resultj = " << i << "  rlab = " << rlab << endl;
 		      for(j = 0; j < nTaille; j++)
 			if(map[j] == val)
 			{
 			  result[j] = rlab;
-			  cout << " done " << endl;
 			}
 		      rlab++;
 		    }
 		}
 	      else
 		done = 0;
+	      val++;
 	    }
-	  val++;
 	}
       
       // update map with new labels and sizes
@@ -188,13 +214,8 @@ void region(OCTET* img, int size_max, int size_min, int h, int w, OCTET s)
       bin[i] = 0;
   
   ecrire_image_pgm("result.pgm", bin, h, w);
-  
-  for(i = 0; i < nTaille; i++)
-    if(map[i] > 0)
-      bin[i] = 255;
-    else
-      bin[i] = 0;
-  ecrire_image_pgm("label.pgm", bin, h, w);
+
+  write_label(map, h, w);
 
   // sort(sizes.begin(), sizes.end());
   // cout << "sizes : " << sizes[sizes.size() - 1] << " " << sizes[sizes.size() - 2] << " " << sizes[sizes.size() - 3] << endl;
