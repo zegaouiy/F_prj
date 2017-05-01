@@ -53,16 +53,26 @@ void max_i(int* img, int n, int &m)
       m = img[i];
 }
 
+void min_i(int* img, int n, int &m)
+{
+  int i;
+  m = 255;
+    
+  for(i = 0; i < n; i++)
+    if(img[i] < m)
+      m = img[i];
+}
+
 
 void write_label(int* map, int h, int w)
 {
-  int i, max, n = h * w;
+  int i, j, max, min, m, n = h * w, val = 1;
   OCTET* out;
   
   allocation_tableau(out, OCTET, n);
   
   max_i(map, n, max);
-
+  
   for(i = 0; i < n; i++)
     {
       out[i] = (OCTET)((float)map[i]/(float)max * 255.0);
@@ -70,6 +80,30 @@ void write_label(int* map, int h, int w)
       if(map[i] == 0)
 	out[i] = 0;
     }
+
+  m = max;
+
+  for(i = 0; i < m; i++)
+    {
+      min = 255;
+      max = 0;
+      
+      for(j = 0; j < n; j++)
+	if(map[j] == val)
+	  {
+	    if(out[j] < min)
+	      min = out[j];
+	    if(out[j] > max)
+	      max = out[j];
+	  }
+      
+      for(j = 0; j < n; j++)
+	if(map[j] == val)
+	  out[j] = (OCTET)((float)(255.0 / (float)(max - min))*((float)(out[j] - min)));
+
+      val++;
+    }
+      
   
   ecrire_image_pgm("label_seed.pgm", out, h, w);
 }
@@ -140,7 +174,7 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
 
   maxi(img, map, h, w, mi, mj);
 
-  while(mi >= 0 && img[mi * w + mj] > 90)
+  while(mi >= 0 && img[mi * w + mj] > 40)
     {
       if(tmin > img[mi * w + mj])
 	t = 0;
