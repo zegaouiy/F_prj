@@ -14,7 +14,58 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
 
 void region(OCTET* img, OCTET* mask, int size_max, int size_min, int h, int w, OCTET s);
 
+void get_max(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab);
+
+void geo_val(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab);
 //**************************************************************************
+
+void get_max(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
+{
+  int i, val;
+  OCTET k;
+  
+  for(i = 0; i < nlab; i++)
+    {
+      maxs[2 * i] = 0; 
+      maxs[2 * i + 1] = 255;
+    }
+      
+  for(i = 0; i < n; i++)
+    {
+      if(mask[i] && map[i])
+	{
+	  val = map[i] - 1;
+	  k = img[i];
+	  
+	  if(k > maxs[2 * val])
+	    maxs[2 * val] = k;
+	  if(k < maxs[2 * val + 1])
+	    maxs[2 * val + 1] = k;
+	}
+    }
+}
+      
+void geo_val(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
+{
+  int i, val;
+  float min, max, k;
+
+  for(i = 0; i < n; i++)
+    {
+      if(mask[i] && map[i])
+	{
+	  val = map[i] - 1;
+	  
+	  k = img[i];
+	  max = maxs[2 * val];
+	  min = maxs[2 * val + 1];
+	  
+	  img[i] = (255.0/(max - min))*(k - min);
+	}
+    }
+      
+}
+      
 
 void find(OCTET* mask, int &m, int n)
 {
@@ -64,13 +115,19 @@ void min_i(int* img, int n, int &m)
 }
 
 
-void write_label(int* map, int h, int w)
+void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
 {
+<<<<<<< HEAD
   int i, j, max, min, m, n = h * w, val = 1;
   OCTET* out;
+=======
+  int i, max, n = h * w;
+  OCTET* out, *coul;
+>>>>>>> 3343be5fd3ea3edc3728840c3871523ab6cb06b1
   
   allocation_tableau(out, OCTET, n);
-  
+  allocation_tableau(coul, OCTET, 3*n);
+
   max_i(map, n, max);
   
   for(i = 0; i < n; i++)
@@ -81,6 +138,7 @@ void write_label(int* map, int h, int w)
 	out[i] = 0;
     }
 
+<<<<<<< HEAD
   m = max;
 
   for(i = 0; i < m; i++)
@@ -104,10 +162,21 @@ void write_label(int* map, int h, int w)
       val++;
     }
       
+=======
+  h_map(out, mask, coul, h * w);
+>>>>>>> 3343be5fd3ea3edc3728840c3871523ab6cb06b1
   
-  ecrire_image_pgm("label_seed.pgm", out, h, w);
+  ecrire_image_pgm("label_seed.pgm", coul, h, w);
+
+  //******** geo label
+
+  OCTET maxs[2 * nlab];
+  get_max(img, mask, map, maxs, n, nlab);
+  geo_val(img, mask, map, maxs, n, nlab);
+
+  ecrire_image_pgm("geo_label.pgm", img, h, w);
 }
-  
+
 
 void thresh(OCTET* img, OCTET s, int n)
 {
@@ -136,7 +205,7 @@ void h_map(OCTET* img, OCTET* mask, OCTET* out, int n)
       int id2;
       float val, dis = 0;  
       
-      if(mask[i])
+      if(mask[i] && img[i] != 0)
 	{
 	  val = ((float)(img[i]) / 255.0) * 3.0;
 	  id1  = floor(val);            
@@ -174,7 +243,11 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
 
   maxi(img, map, h, w, mi, mj);
 
+<<<<<<< HEAD
   while(mi >= 0 && img[mi * w + mj] > 40)
+=======
+  while(mi >= 0 && img[mi * w + mj] > 10)
+>>>>>>> 3343be5fd3ea3edc3728840c3871523ab6cb06b1
     {
       if(tmin > img[mi * w + mj])
 	t = 0;
@@ -252,7 +325,7 @@ void region(OCTET* img, OCTET* mask, int size_max, int size_min, int h, int w, O
   //   if(map[i])
   //     map[i] = sizes[map[i] - 1];
   
-  write_label(map, h, w);
+  write_label(map, img, mask, h, w, sizes.size());
 
   // sort(sizes.begin(), sizes.end());
   // cout << "sizes : " << sizes[sizes.size() - 1] << " " << sizes[sizes.size() - 2] << " " << sizes[sizes.size() - 3] << endl;
