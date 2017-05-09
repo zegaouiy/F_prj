@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "image_ppm.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>    
+#include "morpho.cpp"
 using namespace std;
 
 void h_map(OCTET* img, OCTET* mask, OCTET* out, int n);
@@ -107,10 +107,11 @@ void max_i(int* img, int n, int &m)
 
 void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
 {
-  int i, max, n = h * w;
-  OCTET* out, *coul;
+  int i, max, n = h * w, nbm = 5;
+  OCTET* out, *coul, *tmp;
   
   allocation_tableau(out, OCTET, n);
+  allocation_tableau(tmp, OCTET, n);
   allocation_tableau(coul, OCTET, 3*n);
 
   max_i(map, n, max);
@@ -122,9 +123,13 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
       if(map[i] == 0)
 	out[i] = 0;
     }
+  cout << " dilat " << endl;
 
-  h_map(out, mask, coul, h * w);
+  dilat(out, tmp, mask, h, w, nbm);
+  erosion(tmp, out, mask, h, w, nbm);
   
+  h_map(out, mask, coul, h * w);
+
   ecrire_image_ppm("label_seed.ppm", coul, h, w);
 
   //******** geo label
@@ -133,7 +138,10 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
   get_max(img, mask, map, maxs, n, nlab);
   geo_val(img, mask, map, maxs, n, nlab);
 
-  h_map(img, mask, coul, h * w);
+  dilat(img, out, mask, h, w, nbm);
+  erosion(out, tmp, mask, h, w, nbm);
+  
+  h_map(tmp, mask, coul, h * w);
   ecrire_image_ppm("geo_label.ppm", coul, h, w);
 }
 
