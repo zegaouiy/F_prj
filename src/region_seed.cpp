@@ -125,7 +125,7 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
 
   h_map(out, mask, coul, h * w);
   
-  ecrire_image_pgm("label_seed.pgm", coul, h, w);
+  ecrire_image_ppm("label_seed.ppm", coul, h, w);
 
   //******** geo label
 
@@ -133,7 +133,8 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
   get_max(img, mask, map, maxs, n, nlab);
   geo_val(img, mask, map, maxs, n, nlab);
 
-  ecrire_image_pgm("geo_label.pgm", img, h, w);
+  h_map(img, mask, coul, h * w);
+  ecrire_image_ppm("geo_label.ppm", coul, h, w);
 }
 
 
@@ -202,7 +203,7 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
 
   maxi(img, map, h, w, mi, mj);
 
-  while(mi >= 0 && img[mi * w + mj] > 10)
+  while(mi >= 0 && img[mi * w + mj] > 40)
     {
       if(tmin > img[mi * w + mj])
 	t = 0;
