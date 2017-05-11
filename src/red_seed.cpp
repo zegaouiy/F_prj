@@ -23,13 +23,13 @@ void red_zone(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin,
 
 void get_window(OCTET* img, OCTET* mask, int size_max, int size_min, int wh, int ww, int h, int w, OCTET s);
 
-void red_filter(int* red_map, vector<int> red_sizes, vector<int> red_tab, int h, int w);
+void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& red_tab, int h, int w);
 
 void barycentre(int* red_map, vector<int> red_tab, int h, int w);
 
-void fusion(int* map, int* red_map, vector<int> sizes, vector<int> regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w);
+void fusion(int* map, int* red_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w);
 
-void draw_window(OCTET* img, int* regions, int wh, int ww, int h, int w);
+void draw_window(OCTET* img, vector<int> regions, int wh, int ww, int h, int w);
 
 void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab);
 //**************************************************************************

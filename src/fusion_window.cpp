@@ -1,6 +1,6 @@
 void get_window(OCTET* img, OCTET* mask, int size_max, int size_min, int wh, int ww, int h, int w, OCTET s)
 {
-  int* red_map, *map;
+  int i, *red_map, *map, *center;
   vector<int> sizes;
   vector<int> red_size;
   vector<int> red_tab;
@@ -8,29 +8,32 @@ void get_window(OCTET* img, OCTET* mask, int size_max, int size_min, int wh, int
 
   allocation_tableau(red_map, int, h*w);
   allocation_tableau(map, int, h*w);
-  
+
   cout << "label" << endl;
   label(img, mask, map, sizes, s, h, w);
   write_label(map, img, mask, h, w, sizes.size());
   cout << "red zone" << endl;
   red_zone(img, mask, red_map, red_size, s, h, w);
+
+  i = red_size.size();
+    
+  allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
+  
   cout << "filter" << endl;
-  red_filter(red_map, red_size, red_tab, h, w);
+  red_filter(red_map, center, red_size, red_tab, h, w);
   cout << "fusion" << endl;
+  cout << " red_tap size : " << red_tab.size() << endl;
   fusion(map, red_map, sizes, regions, red_tab, size_max, size_min, wh, ww, h, w);
+  draw_window(img, regions, wh, ww, h, w);
 }  
   
 
-void red_filter(int* red_map, vector<int> red_sizes, vector<int> red_tab, int h, int w)
+void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& red_tab, int h, int w)
 {
-  int i, j, *center, min_i, max_i, min_j, max_j;
+  int i, j, min_i, max_i, min_j, max_j;
 
-  cout << "  red_size : " << (int)red_sizes.size() << "   red_tab : " << (int)red_tab.size() << endl;
+  //cout << "  red_size : " << (int)red_sizes.size() << "   red_tab : " << (int)red_tab.size() << endl;
   
-  i = red_sizes.size();
-
-  allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
- 
   for(i = 0; i < red_sizes.size(); i++)
     {
       center[4 * (i)] = h;
@@ -39,22 +42,27 @@ void red_filter(int* red_map, vector<int> red_sizes, vector<int> red_tab, int h,
       center[4 * (i) + 3] = 0;
     }
 
+  cout << "begin" << endl;
+
   for(i = 0; i < h; i++)
     for(j = 0; j < w; j++)
       {
-	min_i = center[4 * (red_map[i * w + j])];
-	max_i = center[4 * (red_map[i * w + j]) + 1];
-	min_j = center[4 * (red_map[i * w + j]) + 2];
-	max_j = center[4 * (red_map[i * w + j]) + 3];
-
-	if(i < min_i)
-	  center[4 * (red_map[i * w + j])] = i;
-	if(i > max_i)
-	  center[4 * (red_map[i * w + j]) + 1] = i;
-	if(j < min_j)
-	  center[4 * (red_map[i * w + j]) + 2] = j;
-	if(j > max_j)
-	  center[4 * (red_map[i * w + j]) + 3] = j;
+	if(red_map[i*w + j])
+	  {
+	    min_i = center[4 * (red_map[i * w + j] - 1)];
+	    max_i = center[4 * (red_map[i * w + j] - 1) + 1];
+	    min_j = center[4 * (red_map[i * w + j] - 1) + 2];
+	    max_j = center[4 * (red_map[i * w + j] - 1) + 3];
+	    
+	    if(i < min_i)
+	      center[4 * (red_map[i * w + j] - 1)] = i;
+	    if(i > max_i)
+	      center[4 * (red_map[i * w + j] - 1) + 1] = i;
+	    if(j < min_j)
+	      center[4 * (red_map[i * w + j] - 1) + 2] = j;
+	    if(j > max_j)
+	  center[4 * (red_map[i * w + j] - 1) + 3] = j;
+	  }
       }
 
   for(i = 0; i < red_sizes.size(); i++)
@@ -63,12 +71,13 @@ void red_filter(int* red_map, vector<int> red_sizes, vector<int> red_tab, int h,
       red_tab.push_back(red_sizes[i]);
       red_tab.push_back((center[4 * i + 1] - center[4 * i])/2);
       red_tab.push_back((center[4 * i + 3] - center[4 * i + 2])/2);
+      cout << " red = " << red_tab[3*i] << "  size = " << red_tab.size() << endl;
     }
 }
 
 void barycentre(int* red_map, vector<int> red_tab, int h, int w);
 
-void fusion(int* map, int* red_map, vector<int> sizes, vector<int> regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
+void fusion(int* map, int* red_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
 {
   int i, j, k, l, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max, *tmp_map;
   cout << "begin" << endl;
@@ -103,11 +112,12 @@ void fusion(int* map, int* red_map, vector<int> sizes, vector<int> regions, vect
       for(k = kmin; k < kmax; k++)
 	for(l = lmin; l < lmax; l++)
 	  {
-	    cout << "truelopp" << endl;
-	    if(tmp_map[k * (lmax - lmin + 1) + l])
+	    //cout << "truelopp" << endl;
+	    if(tmp_map[k * w + l])
 	      {
+		cout << "begin" << endl;
 		correct = tmp_map[k * w + l];
-		sum += sizes[map[k * w + l]];
+		sum += sizes[map[k * w + l] - 1];
 		cout << "git sum = " << sum << endl;
 		for(i = kmin; i < kmax; i++)
 		  for(j = lmin; j < lmax; j++)
