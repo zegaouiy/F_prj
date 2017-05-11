@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include "image_ppm.h"
+#include <iostream>
+
+void erosion(OCTET* img, OCTET* out, OCTET* mask, int h, int w, int nb)
+{
+  int i, j, n, m;
+  OCTET min;
+
+  for(i = 0; i < h; i++)
+    for(j = 0; j < w; j++)
+      {
+	if(mask[i * w + j])
+	  {
+	    min = img[i * w + j];
+
+	    for(n = (i - win < 0?0:i - win); n < (i + win < h?i + win:h - 1); n++)
+	      for(m = (j - win < 0?0:j - win); m < (j + win < w?j + win:w - 1); m++)
+		if(img[n * w + m] < min)
+		  min = img[n * w + m];
+			
+	    out[i * w + j] = min;
+	  }
+      }
+}
+
+void dilat(OCTET* img, OCTET* out, OCTET* mask, int h, int w, int nb)
+{
+  int i, j, n, m;
+  OCTET max;
+
+  for(i = 0; i < h; i++)
+    for(j = 0; j < w; j++)
+      {
+	if(mask[i * w + j])
+	  {
+	    max = img[i * w + j];
+
+	    for(n = (i - win < 0?0:i - win); n < (i + win < h?i + win:h - 1); n++)
+	      for(m = (j - win < 0?0:j - win); m < (j + win < w?j + win:w - 1); m++)
+		if(img[n * w + m] > max)
+		  max = img[n * w + m];
+			
+	    out[i * w + j] = max;
+	  }
+      }
+} 
