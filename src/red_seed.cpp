@@ -27,7 +27,7 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
 
 void barycentre(int* red_map, vector<int> red_tab, int h, int w);
 
-void fusion(int* map, int* red_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w);
+void fusion(int* map, int* red_map, int* tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w);
 
 void draw_window(OCTET* img, vector<int> regions, int wh, int ww, int h, int w);
 
@@ -62,7 +62,7 @@ void get_max(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
 	}
     }
 }
-      
+
 void geo_val(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
 {
   int i, val;
@@ -72,13 +72,17 @@ void geo_val(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
     {
       if(mask[i] && map[i])
 	{
-	  img[i] = 255;
+	  val = map[i] - 1;
+	  
+	  k = img[i];
+	  max = maxs[2 * val];
+	  min = maxs[2 * val + 1];
+	  
+	  img[i] = (255.0/(max - min))*(k - min);
 	}
-      else
-	img[i] = 0;
     }
-}
       
+}
 
 void find(OCTET* mask, int &m, int n)
 {
@@ -122,9 +126,10 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
 {
   int i, max, n = h * w, nbm = 5;
   OCTET* out, *coul, *tmp;
-
+  
   allocation_tableau(out, OCTET, n);
   allocation_tableau(tmp, OCTET, n);
+  allocation_tableau(coul, OCTET, 3*n);
 
   max_i(map, n, max);
 
@@ -135,29 +140,27 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
       if(map[i] == 0)
 	out[i] = 0;
     }
-  
+  cout << " dilat " << endl;
 
   dilat(out, tmp, mask, h, w, nbm);
   erosion(tmp, out, mask, h, w, nbm);
-  
-  //h_map(out, mask, coul, h * w);
-
-  //ecrire_image_pgm("label_red.pgm", out, h, w);
-
+    
   //******** geo label
 
   OCTET maxs[2 * nlab];
-  //get_max(img, mask, map, maxs, n, nlab);
+  get_max(img, mask, map, maxs, n, nlab);
   geo_val(img, mask, map, maxs, n, nlab);
 
   dilat(img, out, mask, h, w, nbm);
   erosion(out, tmp, mask, h, w, nbm);
+
+  ecrire_image_pgm("red_new_region.pgm", tmp, h, w);
   
-  //h_map(tmp, mask, coul, h * w);
-  //ecrire_image_pgm("red_geo_label.pgm", tmp, h, w);
   for(i = 0; i< h*w;i++)
     img[i] = tmp[i];
 }
+
+
 
 
 void thresh(OCTET* img, OCTET s, int n)
@@ -406,7 +409,7 @@ int main(int argc, char* argv[])
   lire_image_pgm(nomImg, ImgIn, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
-  get_window(ImgIn, mask, max, min, 120, 80, nH, nW,s);
+  get_window(ImgIn, mask, max, min, 80, 120, nH, nW,s);
   
   //h_map(ImgIn, mask, out, nTaille);
 
