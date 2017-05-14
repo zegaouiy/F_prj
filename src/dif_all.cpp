@@ -187,15 +187,14 @@ void median(OCTET* img, OCTET* out, OCTET* mask, int win, int h, int w)
       }
 }
 
-void order_dif(OCTET* img, OCTET* mask, OCTET* ref, OCTET* coul, int win, int nH, int nW)
+void order_dif(OCTET* img, OCTET* mask, OCTET* ref, OCTET* res, int win, int nH, int nW)
 {
-  OCTET *res, *tmp;
+  OCTET *tmp;
   int i, j, n = nH * nW;
   
   app_mask(img, mask, n);
   app_mask(ref, mask, n);
 
-  allocation_tableau(res, OCTET, n);
   allocation_tableau(tmp, OCTET, n);
   
   median(img, res, mask, win, nH, nW);
@@ -203,29 +202,29 @@ void order_dif(OCTET* img, OCTET* mask, OCTET* ref, OCTET* coul, int win, int nH
   erosion(res, tmp, mask, win, nH, nW);
   dilat(tmp, res, mask, win, nH, nW);
 
-  h_map(res, mask, coul, nH * nW);
+  //h_map(res, mask, coul, nH * nW);
 }
     
 void do_diff(OCTET* img, OCTET* mask, OCTET* ref, int win, char nom[250], int id, char suf[250], int h, int w, int nbimg)
 {
   int i = 1, n = h * w;
   char file[250];
-  OCTET* coul, *imtemp;
-  
-  allocation_tableau(coul, OCTET, 3 * h * w);
+  OCTET *res, *imtemp;
+
+  allocation_tableau(res, OCTET, n);
   allocation_tableau(imtemp, OCTET, 3 * h * w);
 
-  order_dif(img, mask, ref, coul, win, h, w);
-  sprintf(file, "heat_map_%d%s", id, suf);
-  ecrire_image_ppm(file, coul, h, w);
+  order_dif(img, mask, ref, res, win, h, w);
+  sprintf(file, "dif_%d.pgm", id);
+  ecrire_image_pgm(file, res, h, w);
 
   while(i < nbimg)
     {
       next_img(imtemp, nom, id + i, suf, n);
       to_nb(imtemp, img, n);
-      order_dif(img, mask, ref, coul, win, h, w);
-      sprintf(file, "heat_map_%d%s", id + i, suf);
-      ecrire_image_ppm(file, coul, h, w);
+      order_dif(img, mask, ref, res, win, h, w);
+      sprintf(file, "dif_%d.pgm", id + i);
+      ecrire_image_pgm(file, res, h, w);
       i++;
     }
 }

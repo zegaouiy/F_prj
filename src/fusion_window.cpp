@@ -1,38 +1,38 @@
-void get_window(OCTET* img, OCTET* mask, int size_max, int size_min, int wh, int ww, int h, int w, OCTET s)
-{
-  int i, *red_map, *map, *center, *tmp;
-  vector<int> sizes;
-  vector<int> red_size;
-  vector<int> red_tab;
-  vector<int> regions;
-  OCTET* out;
+// void get_window(OCTET* img, OCTET* mask, int size_max, int size_min, int wh, int ww, int h, int w, OCTET s)
+// {
+//   int i, *red_map, *map, *center, *tmp;
+//   vector<int> sizes;
+//   vector<int> red_size;
+//   vector<int> red_tab;
+//   vector<int> regions;
+//   OCTET* out;
   
-  allocation_tableau(red_map, int, h*w);
-  allocation_tableau(map, int, h*w);
-  allocation_tableau(tmp, int, h*w);
-  allocation_tableau(out, OCTET, h*w);
+//   allocation_tableau(red_map, int, h*w);
+//   allocation_tableau(map, int, h*w);
+//   allocation_tableau(tmp, int, h*w);
+//   allocation_tableau(out, OCTET, h*w);
 
-  for(i = 0; i < h*w; i++)
-    out[i] = img[i];
+//   for(i = 0; i < h*w; i++)
+//     out[i] = img[i];
   
-  cout << "label" << endl;
-  label(img, mask, map, sizes, s, h, w);
-  write_label(map, img, mask, h, w, sizes.size());
-  cout << "red zone" << endl;
-  red_zone(img, mask, red_map, red_size, s, h, w);
+//   cout << "label" << endl;
+//   label(img, mask, map, sizes, s, h, w);
+//   write_label(map, img, mask, h, w, sizes.size());
+//   cout << "red zone" << endl;
+//   red_zone(img, mask, red_map, red_size, s, h, w);
 
-  i = red_size.size();
+//   i = red_size.size();
     
-  allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
+//   allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
   
-  cout << "filter" << endl;
-  red_filter(red_map, center, red_size, red_tab, h, w);
-  cout << "fusion" << endl;
-  cout << " red_tap size : " << red_tab.size() << endl;
-  fusion(map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, h, w);
-  cout << "draaw " << endl;
-  draw_window(out, regions, wh, ww, h, w);
-}  
+//   cout << "filter" << endl;
+//   red_filter(red_map, center, red_size, red_tab, h, w);
+//   cout << "fusion" << endl;
+//   cout << " red_tap size : " << red_tab.size() << endl;
+//   fusion(map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, h, w);
+//   cout << "draaw " << endl;
+//   draw_window(out, regions, wh, ww, h, w);
+// }  
   
 
 void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& red_tab, int h, int w)
@@ -40,6 +40,8 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
   int i, j, min_i, max_i, min_j, max_j;
 
   //cout << "  red_size : " << (int)red_sizes.size() << "   red_tab : " << (int)red_tab.size() << endl;
+
+  red_tab.clear();
   
   for(i = 0; i < red_sizes.size(); i++)
     {
@@ -89,7 +91,8 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
   int i, j, k, l, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max;
   cout << "begin" << endl;
   
-
+  regions.clear();
+  
   for(i = 0; i < h*w; i++)
     tmp_map[i] = red_map[i];
 
@@ -99,7 +102,7 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
 	 cout << "bi = " << red_tab[3 * i + 1] << "  bj = " << red_tab[3 * i + 2] <<endl;
      }
   
-  while(maxs > 80) //*******************  seuil red_zone
+  while(maxs > 20) //*******************  seuil red_zone
     {
       //cout <<"loop" << endl;
       maxs = 0;
@@ -168,10 +171,10 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
 
      
 
-void draw_window(OCTET* img, vector<int> regions, int wh, int ww, int h, int w)
+void draw_window(OCTET* img, vector<int> regions, int ind, int wh, int ww, int h, int w)
 {
   int i, k, l, kmin, kmax, lmin, lmax, bi, bj, pad = 5;
-
+  char name[250];
   
   for(i = 0; i < regions.size(); i+=2)
     {
@@ -185,18 +188,35 @@ void draw_window(OCTET* img, vector<int> regions, int wh, int ww, int h, int w)
 
       for(k = kmin; k < kmin + pad; k++)//top
 	for(l = lmin; l < lmax; l++)
-	  img[k * w + l] = 255;
+	  {
+	    img[3 * (k * w + l)] = 255;
+	    img[3 * (k * w + l) + 1] = 25;
+	    img[3 * (k * w + l) + 2] = 25;
+	  }
       for(k = kmax - pad; k < kmax; k++)//bot
 	for(l = lmin; l < lmax; l++)
-	  img[k * w + l] = 255;
+	   {
+	    img[3 * (k * w + l)] = 255;
+	    img[3 * (k * w + l) + 1] = 25;
+	    img[3 * (k * w + l) + 2] = 25;
+	  }
       for(k = kmin; k < kmax; k++)//left
 	for(l = lmin; l < lmin + pad; l++)
-	  img[k * w + l] = 255;
+	   {
+	    img[3 * (k * w + l)] = 255;
+	    img[3 * (k * w + l) + 1] = 25;
+	    img[3 * (k * w + l) + 2] = 25;
+	   }
       for(k = kmin; k < kmax; k++)//right
 	for(l = lmax - pad; l < lmax; l++)
-	  img[k * w + l] = 255;
+	   {
+	    img[3 * (k * w + l)] = 255;
+	    img[3 * (k * w + l) + 1] = 25;
+	    img[3 * (k * w + l) + 2] = 25;
+	   }
     }
-  ecrire_image_pgm("fenetre.pgm", img, h, w);
+  sprintf(name, "result_%d.ppm", ind);
+  ecrire_image_ppm(name, img, h, w);
 }
       
 
