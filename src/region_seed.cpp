@@ -125,8 +125,8 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
     }
   cout << " dilat " << endl;
 
-  dilat(out, tmp, mask, h, w, nbm);
-  erosion(tmp, out, mask, h, w, nbm);
+  // dilat(out, tmp, mask, h, w, nbm);
+  // erosion(tmp, out, mask, h, w, nbm);
   
   h_map(out, mask, coul, h * w);
 
@@ -138,8 +138,8 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
   get_max(img, mask, map, maxs, n, nlab);
   geo_val(img, mask, map, maxs, n, nlab);
 
-  dilat(img, out, mask, h, w, nbm);
-  erosion(out, tmp, mask, h, w, nbm);
+  // dilat(img, out, mask, h, w, nbm);
+  // erosion(out, tmp, mask, h, w, nbm);
   
   h_map(tmp, mask, coul, h * w);
   ecrire_image_ppm("geo_label.ppm", coul, h, w);
@@ -211,7 +211,7 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
 
   maxi(img, map, h, w, mi, mj);
 
-  while(mi >= 0 && img[mi * w + mj] > 40)
+  while(mi >= 0 && img[mi * w + mj] > 20)
     {
       if(tmin > img[mi * w + mj])
 	t = 0;

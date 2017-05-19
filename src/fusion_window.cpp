@@ -141,8 +141,8 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
 		//cout << "git sum = " << sizes[map[k * w + l] - 1] << endl;
     		for(i = kmin; i < kmax; i++)
     		  for(j = lmin; j < lmax; j++)
-    		    if(tmp_map[k * w + l] == correct)
-    		      tmp_map[k*w + l] = -1;
+    		    if(tmp_map[i * w + j] == correct)
+    		      tmp_map[i * w + j] = -1;
     	      }
     	  }
 
@@ -156,8 +156,8 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
     	  regions.push_back(red_tab[ind + 2]);
     	}
       else
-    	for(i = kmin; i < kmax; i++)
-    	  for(j = lmin; j < lmax; j++)
+    	for(k = kmin; k < kmax; k++)
+    	  for(l = lmin; l < lmax; l++)
     	    if(tmp_map[k * w + l] == -1)
     	      tmp_map[k*w + l] = red_map[k*w + l];
             
