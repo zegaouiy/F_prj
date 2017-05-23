@@ -162,8 +162,8 @@ void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int n
     }
   cout << " dilat " << endl;
 
-  dilat(out, tmp, mask, h, w, nbm);
-  erosion(tmp, out, mask, h, w, nbm);
+  // dilat(out, tmp, mask, h, w, nbm);
+  // erosion(tmp, out, mask, h, w, nbm);
     
   //******** geo label
 
@@ -171,15 +171,15 @@ void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int n
   get_max(img, mask, map, maxs, n, nlab);
   geo_val(img, mask, map, maxs, n, nlab);
 
-  dilat(img, out, mask, h, w, nbm);
-  erosion(out, tmp, mask, h, w, nbm);
+  // dilat(img, out, mask, h, w, nbm);
+  // erosion(out, tmp, mask, h, w, nbm);
 
   sprintf(name, "region_%d.ppm", ind);
-  h_map(tmp, mask, coul, h * w);
+  h_map(img, mask, coul, h * w);
   ecrire_image_ppm(name, coul, h, w);
     
-  for(i = 0; i< h*w;i++)
-    img[i] = tmp[i];
+  // for(i = 0; i< h*w;i++)
+  //   img[i] = tmp[i];
 }
 
 

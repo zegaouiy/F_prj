@@ -36,8 +36,9 @@ void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 void crit_ratio(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<int> red_sizes, char* nom, int ind, int h, int w);
 
 void max_i(int* img, int n, int &m);
-
+void max_i(float* img, int n, float &m);
 void min_i(int* img, int n, int &m);
+void min_i(float* img, int n, float &m);
 
 //void draw_window(OCTET* img, vector<int> regions, int wh, int ww, int h, int w);
 
@@ -150,15 +151,34 @@ void max_i(int* img, int n, int &m)
       m = img[i];
 }
 
-void min_i(int* img, int n, int &m)
+void min_i(int* img, int n, int &m)//m = max
 {
   int i;
-  m = img[0];
-    
+  
   for(i = 0; i < n; i++)
-    if(img[i] < m)
+    if(img[i] < m && img[i] > 0)
       m = img[i];
 }
+
+void max_i(float* img, int n, float &m)
+{
+  int i;
+  m = 0;
+    
+  for(i = 0; i < n; i++)
+    if(img[i] > m)
+      m = img[i];
+}
+
+void min_i(float* img, int n, float &m)
+{
+  int i;
+  
+  for(i = 0; i < n; i++)
+    if(img[i] < m && img[i] > 0)
+      m = img[i];
+}
+
 
 
 void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int nlab)
@@ -448,8 +468,10 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       red_zone(img, mask, red_map, red_size, s, h, w);
       i = red_size.size();
       //allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
-  
+
+      cout << "begin crit" << endl;
       crit_size(mask, map, red_map, sizes, red_size, name, ind + j, h, w);
+      cout << "end size crit" << endl;
       crit_dens(mask, map, red_map, sizes, red_size, name, ind + j, h, w);
       
 	next_img(img, name, ind + j, suf, h*w);

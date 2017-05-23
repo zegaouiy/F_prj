@@ -1,13 +1,42 @@
+void to_oct(float* map, OCTET* out, int n)
+{
+  int i;
+  float fmax, fmin;
+  OCTET min, max;
+  
+  max_i(map, n, fmax);
+  fmin = fmax;
+  min_i(map, n, fmin);
+  fmin++;
+  cout << " min = " << min << "  max = " << max << endl;
+
+  min = (OCTET)fmin;
+  max = (OCTET)fmax;
+  
+  for(i = 0; i < n; i++)
+    {
+      if(map[i] > 0)
+	out[i] = (OCTET)((255.0/(max - min))*(map[i] - min));
+      else
+	out[i] = 0;
+    }
+}
+
+
 void to_oct(int* map, OCTET* out, int n)
 {
   int i, max, min;
   
   max_i(map, n, max);
+  min = max;
   min_i(map, n, min);
 
   for(i = 0; i < n; i++)
     {
-      out[i] = (OCTET)((255.0/(max - min))*(map[i] - min));
+      if(map[i] > 0)
+	out[i] = (OCTET)((255.0/(max - min))*(map[i] - min));
+      else
+	out[i] = 0;
     }
 }
 
@@ -15,13 +44,16 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 {
   int i, *tmp, *red_tmp, n = h*w;
   OCTET* out, *coul;
+  float* ratio;
   char s[250];
 
   allocation_tableau(out, OCTET, n);
   allocation_tableau(coul, OCTET, 3*n);
   allocation_tableau(tmp, int, n);
   allocation_tableau(red_tmp, int, n);
-
+  allocation_tableau(ratio, float, n);
+  
+  
   for(i = 0; i < n; i++)
     {
       if(map[i])
@@ -29,6 +61,7 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
       else
 	tmp[i] = 0;
     }
+
 
   to_oct(tmp, out, n);
   h_map(out, mask, coul, n);
@@ -42,16 +75,27 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
       else
 	red_tmp[i] = 0;
     }
-  
+  cout << "being oct" << endl;
   to_oct(red_tmp, out, n);
+  cout << "end oct" << endl;
   h_map(out, mask, coul, n);
+  cout << "hmap done" << endl;
   sprintf(s, "red_size_%d.ppm", ind);
   ecrire_image_ppm(s, coul, h, w);
-  
-  for(i = 0; i < n; i++)
-    tmp[i] /= red_tmp[i];
 
-  to_oct(tmp, out, n);
+  cout << "ratio begin" << endl;
+  for(i = 0; i < n; i++)
+    {
+      if(red_map[i] > 0)
+	ratio[i] = (float)tmp[i] / (float)red_tmp[i] + 1;
+      else
+	ratio[i] = 0;
+    }
+
+  cout << "ratio end" << endl;
+  
+  to_oct(ratio, out, n);
+  cout << "end oct" << endl;
   h_map(out, mask, coul, n);
   sprintf(s, "red_ratio_%d.ppm", ind);
   ecrire_image_ppm(s, coul, h, w);
@@ -60,7 +104,7 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 
 void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<int> red_sizes, char* nom, int ind, int h, int w)
 {
-  int correct, mi, mj, i, j, k, l, kmin, kmax, lmin, lmax, ww = 240, wh = 160, n= h*w;
+  int correct, mi, mj, i, j, k, l, kmin, kmax, lmin, lmax, ww = 400, wh = 400, n= h*w;
   int* tmp_map, sum, dens, *density, *true_dens;
   OCTET* out, *coul;
   char s[250];
