@@ -141,7 +141,7 @@ void write_label(int* map, OCTET* img, OCTET* mask, int h, int w, int nlab)
   // dilat(img, out, mask, h, w, nbm);
   // erosion(out, tmp, mask, h, w, nbm);
   
-  h_map(tmp, mask, coul, h * w);
+  h_map(img, mask, coul, h * w);
   ecrire_image_ppm("geo_label.ppm", coul, h, w);
 }
 
