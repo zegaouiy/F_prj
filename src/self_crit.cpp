@@ -82,6 +82,8 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
   cout << "hmap done" << endl;
   sprintf(s, "red_size_%d.ppm", ind);
   ecrire_image_ppm(s, coul, h, w);
+  sprintf(s, "red_size_%d.pgm", ind);
+  ecrire_image_pgm(s, out, h, w);
 
   cout << "ratio begin" << endl;
   for(i = 0; i < n; i++)
@@ -99,6 +101,9 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
   h_map(out, mask, coul, n);
   sprintf(s, "red_ratio_%d.ppm", ind);
   ecrire_image_ppm(s, coul, h, w);
+  sprintf(s, "red_ratio_%d.pgm", ind);
+  ecrire_image_pgm(s, out, h, w);
+  
   
 }
 
@@ -169,6 +174,9 @@ void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
   h_map(out, mask, coul, n);
   sprintf(s, "true_dens_%d.ppm", ind);
   ecrire_image_ppm(s, coul, h, w);
+  sprintf(s, "true_dens_%d.pgm", ind);
+  ecrire_image_pgm(s, out, h, w);
+    
 }
 
 	    
