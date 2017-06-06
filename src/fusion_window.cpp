@@ -103,96 +103,99 @@ void barycentre(int* red_map, vector<int> red_tab, int h, int w);
  *step : delta window size
  * h * w = n
  **/
-// void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, float size_min, int wh, int ww, float step, int h, int w)
-// {
-//   int i, j, k, l, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max, n = h*w;
-//   int clear, win_h = wh, win_w = ww;
-//   float win = 1, val_crit = 0.5;
+void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, float size_min, int wh, int ww, float step, int h, int w)
+{
+  int i, j, k, l, kmin, kmax, lmin, lmax, crit, sum, ind, correct, maxs = size_max, n = h*w;
+  int clear, win_h = wh, win_w = ww;
+  float win = 1, val_crit = 0.5;
 
-//   regions.clear();
+  regions.clear();
 
-//   for(i = 0; i < h*w; i++)
-//     tmp_map[i] = red_map[i];
+  for(i = 0; i < h*w; i++)
+    tmp_map[i] = red_map[i];
 
-//   while(maxs > 20) //*******************  seuil red_zone
-//     {
-//       //cout <<"loop" << endl;
-//       maxs = 0;
-//       ind = 0;
+  while(maxs > 20) //*******************  seuil red_zone
+    {
+      //cout <<"loop" << endl;
+      maxs = 0;
+      ind = 0;
 	
-//       for(i = 0; i < red_tab.size(); i+=3)
-// 	{
-// 	  if(red_tab[i] > maxs)
-// 	    {
-// 	      maxs = red_tab[i];
-// 	      ind = i;
-// 	      //cout << "red_tab = " << red_tab[i] << endl;
-// 	    }
-// 	}
-//       clear = 0;
-//       while(win_h < size_max && !clear)
-// 	{
-// 	  //cout << "gitmax = " << maxs << endl;
-// 	  win_h *= win++ * step + 1.0;
-// 	  win_w *= win++ * step + 1.0;
+      for(i = 0; i < red_tab.size(); i+=3)
+	{
+	  if(red_tab[i] > maxs)
+	    {
+	      maxs = red_tab[i];
+	      ind = i;
+	      //cout << "red_tab = " << red_tab[i] << endl;
+	    }
+	}
+      clear = 0;
+      while(win_h < size_max && !clear)
+	{
+	  //cout << "gitmax = " << maxs << endl;
+	  win_h *= win++ * step + 1.0;
+	  win_w *= win++ * step + 1.0;
 	  
-// 	  kmin = max(0, red_tab[ind + 1] - win_h);
-// 	  kmax = min(h, red_tab[ind + 1] + win_h);
-// 	  lmin = max(0, red_tab[ind + 2] - win_w);
-// 	  lmax = min(w, red_tab[ind + 2] + win_w);
+	  kmin = max(0, red_tab[ind + 1] - win_h);
+	  kmax = min(h, red_tab[ind + 1] + win_h);
+	  lmin = max(0, red_tab[ind + 2] - win_w);
+	  lmax = min(w, red_tab[ind + 2] + win_w);
 
-// 	  //cout << kmin << " " << kmax << " " << lmin << " " << lmax << endl;
+	  //cout << kmin << " " << kmax << " " << lmin << " " << lmax << endl;
       
-// 	  sum = 0;
-      
-// 	  for(k = kmin; k < kmax; k++)
-// 	    for(l = lmin; l < lmax; l++)
-// 	      {
-// 		//cout << "truelopp" << endl;
-// 		if(tmp_map[k * w + l] > 0)
-// 		  {
-// 		    //cout << "begin" << endl;
-// 		    correct = tmp_map[k * w + l];
-// 		    sum += sizes[map[k * w + l] - 1];
-// 		    //cout << "git sum = " << sizes[map[k * w + l] - 1] << endl;
-// 		    for(i = kmin; i < kmax; i++)
-// 		      for(j = lmin; j < lmax; j++)
-// 			if(tmp_map[i * w + j] == correct)
-// 			  tmp_map[i * w + j] = -1;
-// 		  }
-// 	      }
+	  sum = 0;
+	  crit = 0;
+	  	  
+	  for(k = kmin; k < kmax; k++)
+	    for(l = lmin; l < lmax; l++)
+	      {
+		//cout << "truelopp" << endl;
+		if(tmp_map[k * w + l] > 0)
+		  {
+		    crit += ((crit_size[k * w + l] == 255) || (crit_ratio[k * w + l] == 255) || (crit_dens[k * w + l] != 255));
+			      
+		    //cout << "begin" << endl;
+		    correct = tmp_map[k * w + l];
+		    sum += sizes[map[k * w + l] - 1];
+		    //cout << "git sum = " << sizes[map[k * w + l] - 1] << endl;
+		    for(i = kmin; i < kmax; i++)
+		      for(j = lmin; j < lmax; j++)
+			if(tmp_map[i * w + j] == correct)
+			  tmp_map[i * w + j] = -1;
+		  }
+	      }
 
-// 	  //cout << "endtrue loop" << endl;
+	  //cout << "endtrue loop" << endl;
 
-// 	  // cout << "sum = " << sum << endl;
+	  // cout << "sum = " << sum << endl;
       
-// 	  if(sum < size_min * win_h * win_w)
-// 	    {
-// 	      //Check crits
-// 	      if(crit ok)//***************************************
-// 		{
-// 		  regions.push_back(red_tab[ind + 1]);
-// 		  regions.push_back(red_tab[ind + 2]);
-// 		  //regions.push_back(win);
+	  if(sum < size_min * win_h * win_w)
+	    {
+	      //Check crits
+	      if(crit > 0)//***************************************
+		{
+		  regions.push_back(red_tab[ind + 1]);
+		  regions.push_back(red_tab[ind + 2]);
+		  //regions.push_back(win);
 
-// 		  clear = 1;
-// 		}
-// 	    }
-// 	  else
-// 	    win += size_max;
-// 	}
-//       if(clear)
-// 	{
-// 	  for(k = kmin; k < kmax; k++)
-// 	    for(l = lmin; l < lmax; l++)
-// 	      if(tmp_map[k * w + l] == -1)
-// 		tmp_map[k*w + l] = red_map[k*w + l];
-// 	}
+		  clear = 1;
+		}
+	    }
+	  else
+	    win += size_max;
+	}
+      if(clear)
+	{
+	  for(k = kmin; k < kmax; k++)
+	    for(l = lmin; l < lmax; l++)
+	      if(tmp_map[k * w + l] == -1)
+		tmp_map[k*w + l] = red_map[k*w + l];
+	}
       
-//       red_tab[ind] = 0;
-//       //   cout << "end fusion" << endl;
-//     }
-// }
+      red_tab[ind] = 0;
+      //   cout << "end fusion" << endl;
+    }
+}
 
 void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
 {
@@ -323,7 +326,7 @@ void draw_window(OCTET* img, vector<int> regions, int ind, int wh, int ww, int h
 	    img[3 * (k * w + l) + 2] = 25;
 	  }
     }
-  sprintf(name, "result_%d.ppm", ind);
+  sprintf(name, "adapt_result_%d.ppm", ind);
   ecrire_image_ppm(name, img, h, w);
 }
       
