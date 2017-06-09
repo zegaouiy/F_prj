@@ -200,7 +200,7 @@ void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int n
       if(map[i] == 0)
 	out[i] = 0;
     }
-  cout << " dilat " << endl;
+  //  cout << " dilat " << endl;
 
   dilat(out, tmp, mask, h, w, nbm);
   erosion(tmp, out, mask, h, w, nbm);
@@ -331,7 +331,7 @@ void red_zone(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin,
 	    sizes.push_back(size);
 	    lab++;
 	    adv += size;
-	    cout << " red_adv = " << adv/(float)true_n * 100.0 << endl;
+	    //cout << " red_adv = " << adv/(float)true_n * 100.0 << endl;
 	  }
       }
 }
@@ -400,7 +400,7 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
       lab++;
       adv += size;
       maxi(img, map, h, w, mi, mj);
-      cout << " adv = " << adv/(float)true_n * 100.0 << endl;
+      //cout << " adv = " << adv/(float)true_n * 100.0 << endl;
     }
 }
 // for(i = 0; i < sizes.size(); i++)
@@ -462,7 +462,9 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
   for(j = 0; j < nbimg; j++)
     {
       app_mask(img, mask, h*w);
+      cout << "begin label" << endl;
       label(img, mask, map, sizes, s, h, w);
+      cout << "end label" << endl;
       write_label(map, img, mask, ind+j-1, h, w, sizes.size());
 
       red_zone(img, mask, red_map, red_size, s, h, w);
@@ -473,8 +475,9 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       crit_size(mask, map, red_map, sizes, red_size, name, ind + j, h, w);
       cout << "end size crit" << endl;
       crit_dens(mask, map, red_map, sizes, red_size, name, ind + j, h, w);
-      
-	next_img(img, name, ind + j, suf, h*w);
+      cout << "end dens crit" << endl;
+
+      next_img(img, name, ind + j, suf, h*w);
     }
 }  
 
