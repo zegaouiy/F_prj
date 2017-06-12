@@ -1,3 +1,4 @@
+
 void to_oct(float* map, OCTET* out, int n)
 {
   int i;
@@ -109,11 +110,19 @@ void crit_size(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 
 void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<int> red_sizes, char* nom, int ind, int h, int w)
 {
-  int correct, mi, mj, i, j, k, l, kmin, kmax, lmin, lmax, ww = 400, wh = 400, n= h*w;
+  int correct, mi, mj, i, j, k, l, kmin, kmax, lmin, lmax, ww = 800, wh = 800, n= h*w;
   int* tmp_map, sum, dens, *density, *true_dens;
   OCTET* out, *coul;
   char s[250];
+  float count = 0;
+  vector<float> vals;
 
+  cout << "init vals" << endl;
+  
+  for(i = 0; i < red_sizes.size(); i++)
+    vals.push_back(-1);
+
+  cout << "end vals = " << vals.size() << "  red_sizes = " << red_sizes.size() << endl;
   allocation_tableau(tmp_map, int, n);
   allocation_tableau(density, int, n);
   allocation_tableau(true_dens, int, n);
@@ -122,11 +131,12 @@ void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
   
   for(i = 0; i < h*w; i++)
     tmp_map[i] = red_map[i];
-  
+
+  cout << "end tmp map" << endl;
   for(i = 0; i < h; i++)
     for(j = 0; j < w; j++)
       {
-	if (red_map[i * w + j])
+	if (red_map[i * w + j] && vals[red_map[i * w +j] - 1] != -1)
 	  {
 	    kmin = max(0, i - wh);
 	    kmax = min(h, i + wh);
@@ -136,6 +146,8 @@ void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 	    dens = 0;
 	    sum = 0;
 	    
+	    cout << "Percent = " << count++/(float)red_sizes.size() * 100.0 << endl;
+
 	    for(k = kmin; k < kmax; k++)
 	      for(l = lmin; l < lmax; l++)
 		{
@@ -158,22 +170,25 @@ void crit_dens(OCTET* mask, int* map, int* red_map, vector<int> sizes, vector<in
 		  tmp_map[k*w + l] = red_map[k*w + l];
 	    density[i * w + j] = sum;
 	    true_dens[i * w + j] = dens;
+	    vals[red_map[i * w + j] - 1] = dens;
 	  }
 	else
 	  {
-	    density[i * w + j] = 0;
-	    true_dens[i * w + j] = 0;
+	    if(red_map[i * w + j])
+	      true_dens[i * w + j] = vals[red_map[i * w + j] - 1];
+	    else
+	      true_dens[i * w + j] = 0;
 	  }
       }
-  to_oct(density, out, n);
-  h_map(out, mask, coul, n);
-  sprintf(s, "density_%d.ppm", ind);
-  ecrire_image_ppm(s, coul, h, w);
-  
+  // to_oct(density, out, n);
+  // h_map(out, mask, coul, n);
+  // sprintf(s, "density_%d.ppm", ind);
+  // ecrire_image_ppm(s, coul, h, w);
+  cout << "end loop" << endl;
   to_oct(true_dens, out, n);
   h_map(out, mask, coul, n);
-  sprintf(s, "true_dens_%d.ppm", ind);
-  ecrire_image_ppm(s, coul, h, w);
+  //sprintf(s, "true_dens_%d.ppm", ind);
+  //ecrire_image_ppm(s, coul, h, w);
   sprintf(s, "true_dens_%d.pgm", ind);
   ecrire_image_pgm(s, out, h, w);
     

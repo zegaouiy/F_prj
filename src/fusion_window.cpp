@@ -200,7 +200,7 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
 {
   int i, j, k, l, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max;
-  cout << "begin" << endl;
+  //cout << "begin" << endl;
   
   regions.clear();
   

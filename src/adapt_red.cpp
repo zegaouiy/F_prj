@@ -161,7 +161,7 @@ void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int n
       if(map[i] == 0)
 	out[i] = 0;
     }
-  cout << " dilat " << endl;
+  //cout << " dilat " << endl;
 
   // dilat(out, tmp, mask, h, w, nbm);
   // erosion(tmp, out, mask, h, w, nbm);
@@ -292,7 +292,7 @@ void red_zone(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin,
 	    sizes.push_back(size);
 	    lab++;
 	    adv += size;
-	    cout << " red_adv = " << adv/(float)true_n * 100.0 << endl;
+	    //cout << " red_adv = " << adv/(float)true_n * 100.0 << endl;
 	  }
       }
 }
@@ -361,7 +361,7 @@ void label(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin, in
       lab++;
       adv += size;
       maxi(img, map, h, w, mi, mj);
-      cout << " adv = " << adv/(float)true_n * 100.0 << endl;
+      //cout << " adv = " << adv/(float)true_n * 100.0 << endl;
     }
 }
 // for(i = 0; i < sizes.size(); i++)
@@ -413,7 +413,7 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
   vector<int> red_tab;
   vector<int> regions;
   OCTET* out, *crit_size, *crit_ratio, *crit_dens;
-  char true_name[250], out_name[250];
+  char true_name[250], out_name[250], dir[250] = "dat_crit/";
   float step = 0.2;
   
   allocation_tableau(red_map, int, h*w);
@@ -426,6 +426,7 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
 
   for(j = 1; j < nbimg; j++)
     {
+      cout << "i = " << j + ind << endl;
       app_mask(img, mask, h*w);
       label(img, mask, map, sizes, s, h, w);
       write_label(map, img, mask, ind+j-1, h, w, sizes.size());
@@ -437,11 +438,11 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       
       red_filter(red_map, center, red_size, red_tab, h, w);
 
-      sprintf(out_name, "red_size_%d.pgm", ind+j-1);
+      sprintf(out_name, "%sred_size_%d.pgm", dir, ind+j-1);
       lire_image_pgm(out_name, crit_size, n);
-      sprintf(out_name, "red_ratio_%d.pgm", ind+j-1);
+      sprintf(out_name, "%sred_ratio_%d.pgm", dir, ind+j-1);
       lire_image_pgm(out_name, crit_ratio, n);
-      sprintf(out_name, "true_dens_%d.pgm", ind+j-1);
+      sprintf(out_name, "%strue_dens_%d.pgm", dir, ind+j-1);
       lire_image_pgm(out_name, crit_dens, n);
       
       a_fusion(crit_size, crit_ratio, crit_dens, map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, step, h, w);
