@@ -43,6 +43,7 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
 
   red_tab.clear();
   
+  #pragma omp parallel for
   for(i = 0; i < red_sizes.size(); i++)
     {
       center[4 * (i)] = h;
@@ -50,9 +51,11 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
       center[4 * (i) + 2] = w;
       center[4 * (i) + 3] = 0;
     }
+  cout << "done first init" << endl;
+  //cout << "begin" << endl;
 
-  cout << "begin" << endl;
 
+#pragma omp parallel for schedule(dynamic,1) collapse(2)
   for(i = 0; i < h; i++)
     for(j = 0; j < w; j++)
       {
@@ -74,6 +77,8 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
 	  }
       }
 
+  cout << "done sec init " << endl;
+
   for(i = 0; i < red_sizes.size(); i++)
     {
       // red_tab : size bi bj
@@ -82,6 +87,7 @@ void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& r
       red_tab.push_back((center[4 * i + 3] + center[4 * i + 2])/2);
       //cout << " red = " << red_tab[3*i] << "  size = " << red_tab.size() << endl;
     }
+  cout << "done init" << endl;
 }
 
 void barycentre(int* red_map, vector<int> red_tab, int h, int w);
@@ -158,6 +164,8 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 		    correct = tmp_map[k * w + l];
 		    sum += sizes[map[k * w + l] - 1];
 		    //cout << "git sum = " << sizes[map[k * w + l] - 1] << endl;
+		    
+		   
 		    for(i = kmin; i < kmax; i++)
 		      for(j = lmin; j < lmax; j++)
 			if(tmp_map[i * w + j] == correct)
@@ -204,7 +212,7 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
   
   regions.clear();
   
-  for(i = 0; i < h*w; i++)
+ for(i = 0; i < h*w; i++)
     tmp_map[i] = red_map[i];
 
   for(i = 0; i < sizes.size(); i++)
@@ -287,6 +295,8 @@ void draw_window(OCTET* img, vector<int> regions, int ind, int wh, int ww, int h
   int i, k, l, kmin, kmax, lmin, lmax, bi, bj, pad = 5;
   char name[250];
   
+  cout << "region size = " << regions.size() << endl;
+
   for(i = 0; i < regions.size(); i+=2)
     {
       bi = regions[i];

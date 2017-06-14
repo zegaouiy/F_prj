@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>    
 #include "morpho.cpp"
+#include <omp.h>
 
 using namespace std;
 
@@ -37,6 +38,7 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 
 void app_mask(OCTET* img, OCTET* mask, int n)
 {
+  #pragma omp parallel for
   for(int i = 0; i < n; i++)
     {
       if(mask[i] != 255)
@@ -88,6 +90,7 @@ void geo_val(OCTET* img, OCTET* mask, int* map, OCTET* maxs, int n, int nlab)
   int i, val;
   float min, max, k;
 
+  #pragma omp parallel for
   for(i = 0; i < n; i++)
     {
       if(mask[i] && map[i])
@@ -153,7 +156,8 @@ void write_label(int* map, OCTET* img, OCTET* mask, int ind, int h, int w, int n
   allocation_tableau(coul, OCTET, 3*n);
 
   max_i(map, n, max);
-
+  
+  #pragma omp parallel for
   for(i = 0; i < n; i++)
     {
       out[i] = (OCTET)((float)map[i]/(float)max * 255.0);
@@ -205,6 +209,7 @@ void h_map(OCTET* img, OCTET* mask, OCTET* out, int n)
   int i;
   float a;
 
+  #pragma omp parallel for
   for(i = 0; i < n; i++)
     {
       float color[4][3] = { {20,20,255}, {20,255,20}, {255,255,20}, {255,20,20} };
@@ -413,7 +418,7 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
   vector<int> red_tab;
   vector<int> regions;
   OCTET* out, *crit_size, *crit_ratio, *crit_dens;
-  char true_name[250], out_name[250], dir[250] = "dat_crit/";
+  char true_name[250], out_name[250], dir[250] = "prj/dat_crit/";
   float step = 0.2;
   
   allocation_tableau(red_map, int, h*w);
@@ -424,9 +429,10 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
   allocation_tableau(crit_ratio, OCTET, h*w);
   allocation_tableau(crit_dens, OCTET, h*w);
 
+
   for(j = 1; j < nbimg; j++)
     {
-      cout << "i = " << j + ind << endl;
+      cout << "i = " << j + ind << "  nb thread = " << omp_get_max_threads() << endl;
       app_mask(img, mask, h*w);
       label(img, mask, map, sizes, s, h, w);
       write_label(map, img, mask, ind+j-1, h, w, sizes.size());
@@ -435,9 +441,9 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       i = red_size.size();
       allocation_tableau(center, int, 4 * i); // mini maxi minj maxj
   
-      
+      cout << "begin filter ||| isize = " << i << endl;
       red_filter(red_map, center, red_size, red_tab, h, w);
-
+      cout << "filter done" << endl;
       sprintf(out_name, "%sred_size_%d.pgm", dir, ind+j-1);
       lire_image_pgm(out_name, crit_size, n);
       sprintf(out_name, "%sred_ratio_%d.pgm", dir, ind+j-1);
@@ -445,15 +451,21 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       sprintf(out_name, "%strue_dens_%d.pgm", dir, ind+j-1);
       lire_image_pgm(out_name, crit_dens, n);
       
+      cout << "begin fusion" << endl;
       a_fusion(crit_size, crit_ratio, crit_dens, map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, step, h, w);
 
       sprintf(true_name, "%s%d.ppm", outname, ind+j-2);
       lire_image_ppm(true_name, out, h * w);
+      
+      cout << "begin draw window" << endl;
       draw_window(out, regions, ind+j-1, wh, ww, h, w);
+      cout << "end draw window" << endl;
 
       free(center);
+      cout << "free" << endl;
 
       next_img(img, name, ind + j, suf, h*w);
+      cout << " next img " << endl;
     }
 }  
 
