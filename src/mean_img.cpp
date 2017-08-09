@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
   allocation_tableau(mask, OCTET, nTaille);
   lire_image_pgm(nomMask, mask, nH * nW);
 
-  do_med(ImgIn, nomImg, ind, suf, nH, nW, nbimg);
+  mean_ref(ImgIn, nomImg, ind, suf, nH, nW, nbimg);
 
   return 1;
 }
