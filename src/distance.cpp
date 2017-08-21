@@ -7,7 +7,12 @@
 #include <math.h>
 
 using namespace std;
-
+float f_abs(float a)
+{
+  if(a < 0)
+    a *= -1;
+  return a;
+}
 
 void next_img(OCTET* img, char nom[250], int id, char suf[250], int n)
 {
@@ -56,8 +61,7 @@ void h_map(float* img, OCTET* mask, OCTET* out, int n)
 
   maxi(img, mx, n);
   max = mx;
-  cout << " max = " << max << endl;
-
+ 
   for(i = 0; i < n; i++)
     {
       float color[4][3] = { {20,20,255}, {20,255,20}, {255,255,20}, {255,20,20} };
@@ -273,33 +277,38 @@ int main(int argc, char* argv[])
     order4 : median - erod - dif
   */
 
-  float alph, alt = 14.2;
+  float alph, alt = 24.2, t = 100000;
   int i, j;
   OCTET* dist;
   float* map;
   
   f *= 0.001;
   s *= 0.001;
-
+  f = 61.036663717;
+  f = 0.028;
+  
   allocation_tableau(dist, OCTET, nTaille*3);
   allocation_tableau(map, float, nTaille);
 
-  cout << " h = " << s/(float)nH << endl;
+  
 
   for(i = 0; i < nH; i++)
-    for(j = 0; j < nW; j++)
     {
-      if(mask[i*nW + j])
+      for(j = 0; j < nW; j++)
 	{
-	  alph = atan(((s/(float)nH)*((float)(i - 550)))/f);// * 180.0/M_PI;
-	  //cout << " l = " << alt/sin(alph) << endl;
-	  map[i * nW + j] = abs((int)(alt/sin(alph)));
-	  if(map[i * nW + j] < 0)
-	    map[i * nW + j] *= -1;
+	  if(mask[i*nW + j])
+	    {
+	      alph = atan((560.0 -  (float)i)/(f*t)) - 0.059;
+	      //cout << " l = " << alt/sin(alph) << endl;
+	      map[i * nW + j] = abs((int)(alt/sin(alph)));
+	      if(map[i * nW + j] < 0)
+		map[i * nW + j] *= -1;
+	    }
 	}
+      cout << i << " " << map[i * nW + 5000] << endl; //alph << endl;
     }
   h_map(map, mask, dist, nTaille);
-  cout << "hmap" << endl;
+  
   ecrire_image_ppm("calcul.ppm", dist, nH, nW);
 
   return 1;

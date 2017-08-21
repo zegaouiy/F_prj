@@ -18,3 +18,12 @@ void read_map(int* map, char* nom, int n)
     }
   fclose(f_image);
 }
+
+void count_window(vector<int> win, ofstream count, int i)
+{
+  if (count.is_open())
+    {
+      count << i << " " << win.size() << endl;
+    }
+}
+

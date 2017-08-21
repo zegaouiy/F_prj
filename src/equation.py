@@ -12,7 +12,7 @@ c = - ub*uo + ub*uc + uo*uo - uc*uo
 #print c
 """
 
-t = 1.0#00000.0
+t = 100000.0
 ub = 1600.0
 ua = 2730.0
 uc = 3400.0
@@ -32,8 +32,10 @@ print equations(x)
 x = abs(x)
 print x
 
-alph = math.atan((1000.0 - 950.0)/x) - 0.64
+alph = math.atan((1000.0 - 950.0)/(x*t)) - 0.059
 l = 24.2/math.sin(alph)
 
 print alph
 print l
+
+

@@ -36,6 +36,8 @@ int main(int argc, char* argv[])
 
   sprintf(tru, "%s%d%s", nomImg, ind, suf);
   sprintf(img_mask, "%s%d%s", nomF, ind, suf);
+
+  cout << tru << endl;
   
   lire_nb_lignes_colonnes_image_ppm(tru, &nH, &nW);
   nTaille = nH * nW;
@@ -57,7 +59,7 @@ int main(int argc, char* argv[])
       next_img(img, nomImg, ind + j, suf, nTaille);
       next_img(mask, nomF, ind + j, suf, nTaille);
 
-      sprintf(tru, "collage%d%s", ind + j, suf);
+      sprintf(tru, "fin_collage%d%s", ind + j, suf);
       ecrire_image_ppm(tru, out, nH*2, nW);
     }
   return 1;

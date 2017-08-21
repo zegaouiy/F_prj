@@ -33,8 +33,36 @@
 //   cout << "draaw " << endl;
 //   draw_window(out, regions, wh, ww, h, w);
 // }  
-  
 
+void filter_tab(vector<int>& tab, int ci, int cj, int h, int w)
+{
+  vector<int> tmp;
+  int i, ck, cl;
+  
+  for(i = 0; i < tab.size();i++)
+    tmp.push_back(tab[i]);
+
+  tab.clear();
+  
+  for(i = 0; i < tmp.size(); i+=3)
+    {
+      ck = tmp[i + 1];
+      cl = tmp[i + 2];
+      if(abs(ck - ci) > h/2 && abs(cl - cj) > w/2)
+	{
+	  if(abs(ck - ci) < h)
+	    tmp[i + 1] += (h-abs(ck - ci))*(ci>ck?-1:1);
+	  if(abs(cl - cj) < w)
+	    tmp[i + 2] += (w-abs(cl - cj))*(cj>cl?-1:1);
+
+	  tab.push_back(tmp[i]);
+	  tab.push_back(tmp[i + 1]);
+	  tab.push_back(tmp[i + 2]);
+	}
+    }
+  
+}
+	    
 void red_filter(int* red_map, int* center, vector<int> red_sizes, vector<int>& red_tab, int h, int w)
 {
   int i, j, min_i, max_i, min_j, max_j;
@@ -111,7 +139,7 @@ void barycentre(int* red_map, vector<int> red_tab, int h, int w);
  **/
 void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, float size_min, int wh, int ww, float step, int h, int w)
 {
-  int i, j, k, l, kmin, kmax, lmin, lmax, crit, sum, ind, correct, maxs = size_max, n = h*w;
+  int i, j, k, l, kmin, kmax, lmin, lmax, crit, sum, ind, correct, maxs = 21, n = h*w;
   int clear, win_h = wh, win_w = ww;
   float win = 1, val_crit = 0.5;
 
@@ -136,6 +164,7 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 	    }
 	}
       clear = 0;
+      win = 1;
       while(win_h < size_max && !clear)
 	{
 	  //cout << "gitmax = " << maxs << endl;
@@ -177,7 +206,7 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 
 	  // cout << "sum = " << sum << endl;
       
-	  if(sum < size_min * win_h * win_w)
+	  if(sum < (float)size_min/100.0 * win_h * win_w)
 	    {
 	      //Check crits
 	      if(crit > 0)//***************************************
@@ -185,7 +214,7 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
 		  regions.push_back(red_tab[ind + 1]);
 		  regions.push_back(red_tab[ind + 2]);
 		  //regions.push_back(win);
-
+		  filter_tab(red_tab, red_tab[ind + 1], red_tab[ind + 2], win_h, win_w); 
 		  clear = 1;
 		}
 	    }
@@ -205,9 +234,10 @@ void a_fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, i
     }
 }
 
-void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
+
+void fusion(OCTET* crit_size, OCTET* crit_ratio, OCTET* crit_dens, int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>& regions, vector<int> red_tab, int size_max, int size_min, int wh, int ww, int h, int w)
 {
-  int i, j, k, l, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max;
+  int i, j, k, l, crit, kmin, kmax, lmin, lmax,  sum, ind, correct, maxs = size_max;
   //cout << "begin" << endl;
   
   regions.clear();
@@ -245,12 +275,14 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
       lmax = min(w, red_tab[ind + 2] + ww);
 
       //cout << kmin << " " << kmax << " " << lmin << " " << lmax << endl;
-      
+      crit = 0;
       sum = 0;
       
       for(k = kmin; k < kmax; k++)
     	for(l = lmin; l < lmax; l++)
     	  {
+	    crit += ((crit_size[k * w + l] == 255) || (crit_ratio[k * w + l] == 255) || (crit_dens[k * w + l] != 255));
+	    
     	    //cout << "truelopp" << endl;
     	    if(tmp_map[k * w + l] > 0)
     	      {
@@ -271,8 +303,12 @@ void fusion(int* map, int* red_map, int *tmp_map, vector<int> sizes, vector<int>
       
       if(sum >= size_min && sum < size_max)
     	{
-    	  regions.push_back(red_tab[ind + 1]);
-    	  regions.push_back(red_tab[ind + 2]);
+	  //if(crit > 0);
+	  //{
+	    regions.push_back(red_tab[ind + 1]);
+	    regions.push_back(red_tab[ind + 2]);
+	    filter_tab(red_tab, red_tab[ind + 1], red_tab[ind + 2], wh, ww);
+	    //}
     	}
       else
     	for(k = kmin; k < kmax; k++)

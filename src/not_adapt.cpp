@@ -452,7 +452,7 @@ void get_window_all(char* name, int ind, char* suf, int nbimg, OCTET* img, OCTET
       lire_image_pgm(out_name, crit_dens, n);
       
       cout << "begin fusion" << endl;
-      a_fusion(crit_size, crit_ratio, crit_dens, map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, step, h, w);
+      fusion(crit_size, crit_ratio, crit_dens, map, red_map, tmp, sizes, regions, red_tab, size_max, size_min, wh, ww, h, w);
 
       sprintf(true_name, "%s%d.ppm", outname, ind+j-2);
       lire_image_ppm(true_name, out, h * w);
