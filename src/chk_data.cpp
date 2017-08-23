@@ -1,8 +1,12 @@
-void read_map(int* map, char* nom, int n)
+void read_map(char* nom, int* map, int n, int &size, int &r_size)
 {
   FILE *f_image;
   int  nb_colonnes, nb_lignes, max_grey_val;
   taille_image=3*taille_image;
+
+  fscanf(f_image, "%d %d",
+	 &size, &r_size); /*lecture entete*/
+	
    
   if( (f_image = fopen(nom, "rb")) == NULL)
     {
@@ -23,7 +27,7 @@ void count_window(vector<int> win, ofstream count, int i)
 {
   if (count.is_open())
     {
-      count << i << " " << win.size() << endl;
+      count << i << " " << win.size()/2 << endl;
     }
 }
 
@@ -81,7 +85,7 @@ void count_gt(OCTET* gt, int h, int w)
     }
 }
 
-void check_gt(OCTET* gt, vector<int> win, int size, ofstream roc, int wh, int ww, int h, int w)
+void check_gt(OCTET* gt, vector<int> win, int size, ofstream roc, int wh, int ww, int h, int w, int ind)
 {
   int i, k, l, kmin, kmax, lmin, lmax, fn, fp, vp, tmp;
   fp = 0;
@@ -110,7 +114,17 @@ void check_gt(OCTET* gt, vector<int> win, int size, ofstream roc, int wh, int ww
       if(!tmp)
 	fp++;
     }
-      
-      
-    
-    
+  
+  roc << ind << " " << vp << " " << fp << " " << fn << endl;
+}
+ 
+void chk_dat(OCTET* gt, vector<int> win, ofstream count, ofstream roc, int wh, int ww, int h, int w, int ind, int gt)
+{
+  count_window(win, count, i);
+
+  if(gt)
+    {
+      int size = count_gt(gt, h, w);
+      check_gt(gt, win, size, roc, wh, ww, h, w, ind);
+    }
+}
