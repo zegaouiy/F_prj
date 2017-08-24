@@ -1,19 +1,26 @@
-void read_map(char* nom, int* map, int n, int &size, int &r_size)
+void read_map(char* nom, int* map, int n, vector<int> &size)
 {
   FILE *f_image;
-  int  nb_colonnes, nb_lignes, max_grey_val;
-  taille_image=3*taille_image;
-
-  fscanf(f_image, "%d %d",
-	 &size, &r_size); /*lecture entete*/
-	
+  int  nb, i;
    
   if( (f_image = fopen(nom, "rb")) == NULL)
     {
       printf("\nPas d'acces en ecriture sur l'image %s \n", nom);
       exit(EXIT_FAILURE);
     }
-   
+
+  fscanf(f_image, "%d",
+	 &nb, &nbr); /*lecture entete*/
+
+  int tab[nb];
+
+  if( (fread((int*)tab, sizeof(int), nb, f_image))
+      != (int)(nb))
+    {
+      printf("\nErreur d'ecriture de l'image %s \n", nom);
+      exit(EXIT_FAILURE);
+    }
+
   if( (fread((int*)map, sizeof(int), n, f_image))
       != (int)(n))
     {
@@ -21,6 +28,11 @@ void read_map(char* nom, int* map, int n, int &size, int &r_size)
       exit(EXIT_FAILURE);
     }
   fclose(f_image);
+
+  size.clear();
+  
+  for(i = 0; i < nb; i++)
+    size.push_back(tab[i]);
 }
 
 void count_window(vector<int> win, ofstream count, int i)

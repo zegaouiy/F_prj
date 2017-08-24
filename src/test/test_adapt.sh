@@ -9,19 +9,19 @@ dif="dif_"
 s=10
 
 #calcul image référence
-indice=$(($1*52+$2))
+indice=$(($1*$3+$2))
 echo "indice = $indice"
 ref="img_reference_day$1.ppm"
-./do_ref "image" "$indice" ".ppm" $mask "52"
+./do_ref "image" "$indice" ".ppm" $mask "$3"
 mv "reference_mean.ppm" $ref
 
 #spécification
-./do_spec "image" "$indice" ".ppm" $mask "52" $ref
+./do_spec "image" "$indice" ".ppm" $mask "$3" $ref
 echo "end spec"
 
 #différence
-./do_dif $spec "$indice" ".ppm" $mask $ref $size_morph "52"
+./do_dif $spec "$indice" ".ppm" $mask $ref $size_morph "$3"
 echo "end dif"
 
 #régions map et red map
-./do_regions $dif "$indice" ".pgm" $mask "out" "100" "1000000" "$s" "52" 
+./do_regions $dif "$indice" ".pgm" $mask "out" "100" "1000000" "$s" "$3" 
