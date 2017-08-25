@@ -261,7 +261,6 @@ void red_zone(OCTET* img, OCTET* mask, int* map, vector<int>& sizes, OCTET tmin,
   
   thresh(out, 254, n);
       
-
   for(mi = 0; mi < h; mi++)
     for(mj = 0; mj < w; mj++)
       {

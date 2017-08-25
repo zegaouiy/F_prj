@@ -9,9 +9,9 @@ void read_map(char* nom, int* map, int n, vector<int> &size)
       exit(EXIT_FAILURE);
     }
 
-  fscanf(f_image, "%d",
-	 &nb, &nbr); /*lecture entete*/
-
+  fscanf(f_image, "%d",	 &nb); /*lecture entete*/
+  
+  cout << " nb = " << nb << endl;
   int tab[nb];
 
   if( (fread((int*)tab, sizeof(int), nb, f_image))
@@ -35,7 +35,7 @@ void read_map(char* nom, int* map, int n, vector<int> &size)
     size.push_back(tab[i]);
 }
 
-void count_window(vector<int> win, ofstream count, int i)
+void count_window(vector<int> win, ofstream& count, int i)
 {
   if (count.is_open())
     {
@@ -43,7 +43,7 @@ void count_window(vector<int> win, ofstream count, int i)
     }
 }
 
-void count_gt(OCTET* gt, int h, int w)
+int count_gt(OCTET* gt, int h, int w)
 {
   int  true_n, i, j, size, voisin, mi, mj, p_i, p_j, lab = 1, n = h * w;
   vector<int> done;
@@ -95,9 +95,10 @@ void count_gt(OCTET* gt, int h, int w)
 	    }
 	}
     }
+  return size;
 }
 
-void check_gt(OCTET* gt, vector<int> win, int size, ofstream roc, int wh, int ww, int h, int w, int ind)
+void check_gt(OCTET* gt, vector<int> win, int size, ofstream& roc, int wh, int ww, int h, int w, int ind)
 {
   int i, k, l, kmin, kmax, lmin, lmax, fn, fp, vp, tmp;
   fp = 0;
@@ -130,11 +131,11 @@ void check_gt(OCTET* gt, vector<int> win, int size, ofstream roc, int wh, int ww
   roc << ind << " " << vp << " " << fp << " " << fn << endl;
 }
  
-void chk_dat(OCTET* gt, vector<int> win, ofstream count, ofstream roc, int wh, int ww, int h, int w, int ind, int gt)
+void chk_dat(OCTET* gt, vector<int> win, ofstream& count, ofstream& roc, int wh, int ww, int h, int w, int ind, int do_gt)
 {
-  count_window(win, count, i);
+  count_window(win, count, ind);
 
-  if(gt)
+  if(do_gt)
     {
       int size = count_gt(gt, h, w);
       check_gt(gt, win, size, roc, wh, ww, h, w, ind);
