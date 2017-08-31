@@ -696,10 +696,11 @@ void update(int* mean, OCTET* img, int n)
     mean[i] += img[i];
 }
 
-void mean_ref(OCTET* img, char nom[250], int id, char suf[250], int h, int w, int nbimg)
+void mean_ref(OCTET* img, char nom[250], int id, char suf[250], int h, int w, int nbimg, int day)
 {
   int i, *mean, n = h*w;
   OCTET* out;
+  char out_name[250];
 
   allocation_tableau(out, OCTET, 3 * n);
   allocation_tableau(mean, int, 3 * n);
@@ -716,5 +717,6 @@ void mean_ref(OCTET* img, char nom[250], int id, char suf[250], int h, int w, in
       out[i] = mean[i];
     }
 
+  sprintf(out_name, "img_reference_day%d.ppm", day);
   ecrire_image_ppm("reference_mean.ppm", out, h, w);
 }
